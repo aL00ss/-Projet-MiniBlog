@@ -1,0 +1,74 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>📝 <%= title %></h1>
+            <p class="subtitle">BTS SIO SLAM - Développement Web</p>
+            <div class="bts-badge">Node.js + MySQL</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="action-buttons">
+            <a href="/new" class="btn btn-primary">➕ Nouvel Article</a>
+        </div>
+
+        <% if (articles.length === 0) { %>
+            <div class="empty-message">
+                <div class="empty-icon">📝</div>
+                <h3>Aucun article pour le moment</h3>
+                <p>Commencez par créer votre premier article !</p>
+                <a href="/new" class="btn btn-primary">Créer le premier article</a>
+            </div>
+        <% } else { %>
+            <h2 style="text-align: center; color: var(--primary-blue); margin-bottom: 2rem;">
+                📚 Articles récents (<%= articles.length %>)
+            </h2>
+            
+            <div class="articles-grid">
+                <% articles.forEach(article => { %>
+                    <div class="article-card">
+                        <div class="article-header">
+                            <h3 class="article-title"><%= article.title %></h3>
+                            <div class="article-meta">
+                                <div class="meta-item">
+                                    👤 <strong><%= article.author %></strong>
+                                </div>
+                                <div class="meta-item">
+                                    📅 <%= new Date(article.created_at).toLocaleDateString('fr-FR') %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-preview">
+                                <%= article.content.substring(0, 150) %><%= article.content.length > 150 ? '...' : '' %>
+                            </div>
+                        </div>
+                        <div class="article-footer">
+                            <a href="/article/<%= article.id %>" class="read-more">Lire la suite →</a>
+                            <div class="comments-count">💬 Commentaires</div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+    </div>
+
+    <footer class="tech-footer">
+        <div class="tech-stack">
+            <span class="tech-item">Node.js</span>
+            <span class="tech-item">Express</span>
+            <span class="tech-item">MySQL</span>
+            <span class="tech-item">EJS</span>
+        </div>
+        <p>BTS SIO SLAM - Projet Blog</p>
+    </footer>
+
+</body>
+</html>

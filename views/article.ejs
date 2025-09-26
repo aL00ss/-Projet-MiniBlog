@@ -1,0 +1,70 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>📖 <%= articles.title %></h1>
+            <div class="article-meta" style="color: rgba(255,255,255,0.9);">
+                👤 Par <strong><%= articles.author %></strong> 
+                📅 le <%= new Date(articles.created_at).toLocaleDateString('fr-FR', {year: 'numeric', month: 'long', day: 'numeric'}) %>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="action-buttons">
+            <a href="/" class="btn btn-secondary">⬅️ Retour à l'accueil</a>
+            <a href="/new" class="btn btn-primary">➕ Nouvel Article</a>
+        </div>
+
+        <div class="article-full">
+            <div class="article-full-content">
+                <%= articles.content %>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h3 class="comments-title">💬 Commentaires (<%= comments.length %>)</h3>
+            
+            <% if (comments.length === 0) { %>
+                <div class="no-comments">
+                    <em>Aucun commentaire pour le moment. Soyez le premier à commenter !</em>
+                </div>
+            <% } else { %>
+                <% comments.forEach(comment => { %>
+                    <div class="comment">
+                        <div class="comment-author">👤 <%= comment.author %></div>
+                        <div class="comment-meta">
+                            📅 <%= new Date(comment.created_at).toLocaleDateString('fr-FR') %>
+                            🕒 <%= new Date(comment.created_at).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) %>
+                        </div>
+                        <div class="comment-text"><%= comment.content %></div>
+                    </div>
+                <% }); %>
+            <% } %>
+
+            <!-- Formulaire d'ajout de commentaire -->
+            <form action="/article/<%= articles.id %>/comment" method="POST" class="form-container">
+                <h4 class="form-title">➕ Ajouter un commentaire</h4>
+                <div class="form-group">
+                    <label for="author" class="form-label">Votre nom :</label>
+                    <input type="text" id="author" name="author" class="form-input" required="">
+                </div>
+                <div class="form-group">
+                    <label for="content" class="form-label">Votre commentaire :</label>
+                    <textarea id="content" name="content" rows="4" class="form-textarea" required=""></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">💬 Ajouter le commentaire</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

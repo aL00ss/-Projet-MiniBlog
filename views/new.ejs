@@ -1,0 +1,60 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvel Article - Blog SLAM</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>📝 Nouvel Article</h1>
+            <p class="subtitle">Partagez vos connaissances SLAM</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-container">
+            <h2 class="form-title">✍️ Créer un nouvel article</h2>
+            
+            <form action="/articles" method="POST">
+                <div class="form-group">
+                    <label for="title" class="form-label">📝 Titre de l'article</label>
+                    <input type="text" id="title" name="title" class="form-input" placeholder="Ex: Les bases du JavaScript..." required="">
+                </div>
+                
+                <div class="form-group">
+                    <label for="author" class="form-label">👤 Votre nom</label>
+                    <input type="text" id="author" name="author" class="form-input" placeholder="Votre nom ou pseudonyme..." required="">
+                </div>
+                
+                <div class="form-group">
+                    <label for="content" class="form-label">📄 Contenu de l'article</label>
+                    <textarea id="content" name="content" class="form-textarea" placeholder="Rédigez votre article ici..." required=""></textarea>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        🚀 Publier l'article
+                    </button>
+                    <a href="/" class="btn btn-secondary">
+                        ← Retour à l'accueil
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="tech-footer">
+        <div class="tech-stack">
+            <div class="tech-item">Node.js</div>
+            <div class="tech-item">Express</div>
+            <div class="tech-item">MySQL</div>
+            <div class="tech-item">EJS</div>
+        </div>
+        <p>© 2024 - BTS SIO SLAM - Blog Technique</p>
+    </footer>
+
+
+</body>
+</html>

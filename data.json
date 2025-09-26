@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "title": "les chemise",
+    "content": "les chemises peuvent etre blanches ou rouge.",
+    "img":"https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.nodus.fr%2F53609-product_zoom%2Fchemise-chevron-bleu.jpg&f=1&nofb=1&ipt=3ec542630159aeffe96d5494014da60be4cb6c6032ef03803cb2b143d6807975"
+  },
+  {
+    "id": 2,
+    "title": "les cravates",
+    "content": "les cravates ne peuvent pas etre blanches. ",
+    "img": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.noeud-de-cravate-facile.com%2Fwp-content%2Fuploads%2F2022%2F06%2Fcravate-de-luxe-pour-un-look-elegant.jpg&f=1&nofb=1&ipt=f280e2fc86038dfb2d45de4b2eac8b8ea56a9286cb852b2c3643b42d343a3785"
+  }
+]
