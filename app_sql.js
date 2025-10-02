@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('path');
 const mysql = require('mysql');
-
+const bcrypt = require('bcryptjs');
+const session = require('express-session'); 
 const app = express();
 const port = 3000;
 
@@ -26,6 +27,24 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
+function requireLogin(req, res, next) {
+    if (!req.session || !req.session.user) {
+        return res.render('login', { error: null });
+    }
+    next();
+}
+// --- session middleware (ajouté) ---
+app.use(session({
+    name: 'sessionId',
+    secret: '***REMOVED***',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 30 * 60 * 1000,
+        httpOnly: true,
+        secure: false
+    }
+}));
 
 // === FONCTIONS MYSQL ===
 
@@ -119,7 +138,7 @@ function addComment(id, author, content) {
 // === ROUTES ===
 
 // Page d'accueil - Liste des articles
-app.get('/', async (req, res) => {
+app.get('/', requireLogin,async (req, res) => {
     try {
         const articles = await getAllArticles();
         res.render('index', { 
@@ -133,7 +152,7 @@ app.get('/', async (req, res) => {
 });
 
 // Page d'un article avec ses commentaires
-app.get('/article/:id', async (req, res) => {
+app.get('/article/:id', requireLogin, async (req, res) => {
     try {
         const id = req.params.id;
         const articles = await getArticleById(id);
@@ -156,14 +175,14 @@ app.get('/article/:id', async (req, res) => {
 });
 
 // Formulaire de création d'article
-app.get('/new', (req, res) => {
+app.get('/new', requireLogin, (req, res) => {
     res.render('new', { 
         title: 'Nouvel Article' 
     });
 });
 
 // create un nouvel article
-app.post('/articles', async (req, res) => {
+app.post('/articles', requireLogin, async (req, res) => {
     try {
         const { title, content, author } = req.body;
         
@@ -180,7 +199,7 @@ app.post('/articles', async (req, res) => {
 });
 
 // add un commentaire
-app.post('/article/:id/comment', async (req, res) => {
+app.post('/article/:id/comment', requireLogin, async (req, res) => {
     try {
         const id = req.params.id;
         const { author, content } = req.body;
@@ -197,7 +216,111 @@ app.post('/article/:id/comment', async (req, res) => {
     }
 });
 
+
+// Page d'accueil -> page de connexion
+app.get('/', (req, res) => {
+    if (req.session.user) return res.redirect('/articles');
+    res.render('login', { error: null });
+});
+
+function createUser(username, hashedPassword) {
+    return new Promise((resolve, reject) => {
+        const query = 'INSERT INTO users (username, password) VALUES (?, ?)';
+        connection.query(query, [username, hashedPassword], (error, results) => {
+            if (error) {
+                console.error(' Erreur createUser:', error);
+                reject(error);
+            } else {
+                console.log(` Utilisateur créé avec l'ID: ${results.insertId}`);
+                resolve(results.insertId);
+            }
+        });
+    });
+}
+
+
+// route login (POST) 
+app.post('/login', (req, res) => {
+    const username = (req.body.username || '').toString();
+    const password = (req.body.password || '').toString();
+
+    if (!username || !password) {
+        return res.render('login', { error: 'Veuillez renseigner tous les champs.' });
+    }
+
+    const sql = 'SELECT id, username, password FROM users WHERE username = ? LIMIT 1';
+    connection.query(sql, [username], function(err, results) {
+        if (err) {
+            console.error('Erreur DB /login:', err);
+            return res.render('login', { error: 'Erreur serveur.' });
+        }
+        if (results.length === 0) {
+            return res.render('login', { error: 'Utilisateur introuvable.' });
+        }
+
+        const user = results[0];
+        bcrypt.compare(password, user.password, (bcryptErr, match) => {
+            if (bcryptErr) {
+                console.error('Erreur bcrypt.compare:', bcryptErr);
+                return res.render('login', { error: 'Erreur serveur.' });
+            }
+            if (!match) {
+                return res.render('login', { error: 'Mot de passe incorrect.' });
+            }
+
+            // authentifié
+            req.session.user = { id: user.id, username: user.username };
+            res.redirect('/');
+        });
+    });
+});
+
+
+
+
+app.post('/register', async (req, res) => {
+    try {
+        const { username, password, password2 } = req.body;
+        if (!username || !password || !password2) {
+            return res.render('login', { error: 'Tous les champs sont obligatoires.' });
+        }
+        if (password !== password2) {
+            return res.render('login', { error: 'Les mots de passe ne correspondent pas.' });
+        }
+
+        // vérifier si l'utilisateur existe déjà
+        connection.query('SELECT id FROM users WHERE username = ? LIMIT 1', [username], async (err, results) => {
+            if (err) {
+                console.error('Erreur DB /register:', err);
+                return res.render('login', { error: 'Erreur serveur.' });
+            }
+            if (results.length > 0) {
+                return res.render('login', { error: 'Nom d\'utilisateur déjà pris.' });
+            }
+
+            // hacher le mot de passe et créer l'utilisateur
+            const hash = await bcrypt.hash(password, 10);
+            const newUserId = await createUser(username, hash);
+
+            // connexion automatique après inscription
+            req.session.user = { id: newUserId, username };
+            res.redirect('/');
+        });
+    } catch (error) {
+        console.error('Erreur route POST /register:', error);
+        res.render('login', { error: 'Erreur lors de la création du compte.' });
+    }
+});
+
+
+// logout
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        res.redirect('/');
+    });
+});
+
 // start du serveur
 app.listen(port, () => {
-    console.log(` Serveur démarré sur http://localhost:${port}`);
+    console.log(`Serveur lancé sur le port: http://localhost:${port}`);
 });

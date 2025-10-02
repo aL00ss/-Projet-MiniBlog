@@ -13,6 +13,11 @@
                 👤 Par <strong><%= articles.author %></strong> 
                 📅 le <%= new Date(articles.created_at).toLocaleDateString('fr-FR', {year: 'numeric', month: 'long', day: 'numeric'}) %>
             </div>
+                <div class="container">
+        <div class="action-buttons">
+            <a href="/new" class="btn btn-primary">➕ Nouvel Article</a>
+            <a href="/logout" class="btn btn-ghost">Se déconnecter</a>
+        </div>
         </div>
     </header>
 
