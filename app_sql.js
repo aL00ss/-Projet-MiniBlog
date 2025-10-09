@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session'); 
 const app = express();
 const port = 3000;
+const cors = require('cors');
+
 
 // Connection Ã  la base de données
 var connection = mysql.createConnection({
@@ -23,6 +25,7 @@ connection.connect(function(err){
 });
 
 // Middlewares
+app.use(cors({ origin: 'http://localhost:8100' }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
@@ -323,4 +326,19 @@ app.get('/logout', (req, res) => {
 // start du serveur
 app.listen(port, () => {
     console.log(`Serveur lancé sur le port: http://localhost:${port}`);
+});
+
+
+
+
+//api
+app.get('/api/articles', (req, res) => {
+    const query = 'SELECT * FROM articles';
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la récupération des articles:', error);
+            return res.status(500).json({ error: 'Erreur serveur.' });
+        }
+        res.json(results);
+    });
 });
