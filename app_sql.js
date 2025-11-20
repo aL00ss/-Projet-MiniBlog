@@ -4,7 +4,7 @@ const mysql = require('mysql');
 const bcrypt = require('bcryptjs');
 const session = require('express-session'); 
 const app = express();
-const port = 3000;
+const port = 8100;
 const cors = require('cors');
 
 
