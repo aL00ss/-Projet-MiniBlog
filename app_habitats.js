@@ -6,13 +6,15 @@ const session = require('express-session');
 const app = express();
 const port = 8100;
 const cors = require('cors');
+const crypto = require('crypto');
+const { requireEnv } = require('./loadEnv');
 
 
 // Connection
 var connection = mysql.createConnection({
-    host: '192.168.4.1',
-    user: 'sqlabesnier',
-    password: '***REMOVED***',
+    host: process.env.DB_HOST || '192.168.4.1',
+    user: requireEnv('DB_USER'),
+    password: requireEnv('DB_PASSWORD'),
     database: 'abesnier_bdEval',
     ssl: {
         rejectUnauthorized: false
@@ -35,7 +37,7 @@ app.use(express.json());
 // --- session middleware  ---
 app.use(session({
     name: 'sessionId',
-    secret: '***REMOVED***',
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
     resave: false,
     saveUninitialized: false,
     cookie: {
